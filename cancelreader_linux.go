@@ -59,7 +59,22 @@ func NewReader(reader io.Reader) (CancelReader, error) {
 		return nil, err
 	}
 
+<<<<<<< HEAD
 	err = epollCtl(epoll, unix.EPOLL_CTL_ADD, int(r.cancelSignalReader.Fd()), &unix.EpollEvent{
+=======
+	err = unix.EpollCtl(epoll, unix.EPOLL_CTL_ADD, int(file.Fd()), &unix.EpollEvent{
+		Events: unix.EPOLLIN,
+		Fd:     int32(file.Fd()),
+	})
+	if err != nil {
+		_ = unix.Close(epoll)
+		_ = r.cancelSignalReader.Close()
+		_ = r.cancelSignalWriter.Close()
+		return nil, fmt.Errorf("add reader to epoll interest list")
+	}
+
+	err = unix.EpollCtl(epoll, unix.EPOLL_CTL_ADD, int(r.cancelSignalReader.Fd()), &unix.EpollEvent{
+>>>>>>> pr26-pipe-leak
 		Events: unix.EPOLLIN,
 		Fd:     int32(r.cancelSignalReader.Fd()),
 	})
@@ -67,8 +82,12 @@ func NewReader(reader io.Reader) (CancelReader, error) {
 		_ = unix.Close(epoll)
 		_ = r.cancelSignalReader.Close()
 		_ = r.cancelSignalWriter.Close()
+<<<<<<< HEAD
 		return nil, fmt.Errorf("add cancel signal with descriptor %d to epoll interest list: %w",
 			int(r.cancelSignalReader.Fd()), err)
+=======
+		return nil, fmt.Errorf("add reader to epoll interest list")
+>>>>>>> pr26-pipe-leak
 	}
 
 	return r, nil
